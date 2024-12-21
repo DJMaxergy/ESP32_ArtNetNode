@@ -417,7 +417,7 @@ void espDMX::begin(uint8_t dir, uint8_t* buf) {
 
     // Initialize variables
     _dmx->dmx_nr = _dmx_nr;
-    _dmx->txPin = (_dmx->dmx_nr == 0) ? 1 : 2;
+    _dmx->txPin = (_dmx->dmx_nr == 0) ? 1 : /*2*/9;
     _dmx->state = DMX_STOP;
     _dmx->txChan = 0;
     _dmx->full_uni_time = 0;
@@ -558,7 +558,7 @@ bool espDMX::rdmSendCommand(rdm_data* data) {
   if (_dmx == 0 || !_dmx->rdm_enable || _dmx->rdm_queue.isFull())
     return false;
 
-  if (system_get_free_heap_size() < 2000)
+  if (esp_get_free_heap_size() < 2000)
     return false;
 
   uint8_t packetLength = data->packet.Length;
@@ -906,7 +906,7 @@ void espDMX::rdmEnable(uint16_t ManID, uint32_t DevID) {
   digitalWrite(_dmx->dirPin, HIGH);
 
   // Enable RX pin (same for both universes)
-  pinMode(3, SPECIAL);
+  pinMode(3, SERIAL);
 
   _dmx->rdm_source_man = ManID;
   _dmx->rdm_source_dev = DevID;
@@ -1028,7 +1028,7 @@ void espDMX::dmxIn(bool doIn) {
     rdmPause(true);
 
     // Turn RX pin into UART mode
-    pinMode(3, SPECIAL);
+    pinMode(3, SERIAL);
 
     // If dirPin is specified then set to in direction
     if (_dmx->dirPin != 255) {
@@ -1221,7 +1221,7 @@ void espDMX::handler() {
   delayMicroseconds(7);
 
   // Change pin to UART mode
-  pinMode(_dmx->txPin, SPECIAL);
+  pinMode(_dmx->txPin, SERIAL);
 
   // Empty FIFO
   dmx_flush(_dmx);

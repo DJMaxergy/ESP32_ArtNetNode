@@ -42,15 +42,15 @@ serialLEDDriver::serialLEDDriver() {
   memset(_spi_buffer, 0, sizeof(_spi_buffer));
 
   {
-    static spi_bus_config_t vspi_buscfg;
-    memset(&vspi_buscfg, 0, sizeof(vspi_buscfg));
-    vspi_buscfg.mosi_io_num = VSPI_IOMUX_PIN_NUM_MOSI;
-    vspi_buscfg.sclk_io_num = VSPI_IOMUX_PIN_NUM_CLK;
-    vspi_buscfg.miso_io_num = -1;
-    vspi_buscfg.quadwp_io_num = -1;
-    vspi_buscfg.quadhd_io_num = -1;
-    vspi_buscfg.max_transfer_sz = sizeof(_spi_buffer);
-    spi_bus_initialize(VSPI_HOST, &vspi_buscfg, 1);
+    // static spi_bus_config_t vspi_buscfg;
+    // memset(&vspi_buscfg, 0, sizeof(vspi_buscfg));
+    // vspi_buscfg.mosi_io_num = VSPI_IOMUX_PIN_NUM_MOSI;
+    // vspi_buscfg.sclk_io_num = VSPI_IOMUX_PIN_NUM_CLK;
+    // vspi_buscfg.miso_io_num = -1;
+    // vspi_buscfg.quadwp_io_num = -1;
+    // vspi_buscfg.quadhd_io_num = -1;
+    // vspi_buscfg.max_transfer_sz = sizeof(_spi_buffer);
+    // spi_bus_initialize(VSPI_HOST, &vspi_buscfg, 1);
     
     static spi_device_interface_config_t vspi_devcfg;
     memset(&vspi_devcfg, 0, sizeof(vspi_devcfg));
@@ -61,15 +61,15 @@ serialLEDDriver::serialLEDDriver() {
   }
   
   {
-    static spi_bus_config_t hspi_buscfg;
-    memset(&hspi_buscfg, 0, sizeof(hspi_buscfg));
-    hspi_buscfg.mosi_io_num = HSPI_IOMUX_PIN_NUM_MOSI;
-    hspi_buscfg.sclk_io_num = HSPI_IOMUX_PIN_NUM_CLK;
-    hspi_buscfg.miso_io_num = -1;
-    hspi_buscfg.quadwp_io_num = -1;
-    hspi_buscfg.quadhd_io_num = -1;
-    hspi_buscfg.max_transfer_sz = sizeof(_spi_buffer);
-    spi_bus_initialize(HSPI_HOST, &hspi_buscfg, 2);
+    // static spi_bus_config_t hspi_buscfg;
+    // memset(&hspi_buscfg, 0, sizeof(hspi_buscfg));
+    // hspi_buscfg.mosi_io_num = HSPI_IOMUX_PIN_NUM_MOSI;
+    // hspi_buscfg.sclk_io_num = HSPI_IOMUX_PIN_NUM_CLK;
+    // hspi_buscfg.miso_io_num = -1;
+    // hspi_buscfg.quadwp_io_num = -1;
+    // hspi_buscfg.quadhd_io_num = -1;
+    // hspi_buscfg.max_transfer_sz = sizeof(_spi_buffer);
+    // spi_bus_initialize(HSPI_HOST, &hspi_buscfg, 2);
 
     static spi_device_interface_config_t hspi_devcfg;
     memset(&hspi_devcfg, 0, sizeof(hspi_devcfg));
