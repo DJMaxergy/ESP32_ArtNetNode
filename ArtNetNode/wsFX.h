@@ -19,17 +19,18 @@
 #ifndef wsFX_h
 #define wsFX_h
 
-enum  pattern { STATIC, RAINBOW_CYCLE, THEATER_CHASE, TWINKLE };
+#include <Arduino.h>
+#include <NeoPixelBus.h>
 
-class serialLEDDriver;
+enum  pattern { STATIC, RAINBOW_CYCLE, THEATER_CHASE, TWINKLE };
 
 class pixPatterns {
   public:
     pattern  ActivePattern;       // which pattern is running
-
+    
     unsigned long Interval;       // milliseconds between updates
     unsigned long lastUpdate;     // last update of position
-
+    
     uint32_t Colour1, Colour2;    // What colours are in use
     uint32_t Colour1Raw, Colour2Raw;    // Colours pre-intensity
     uint16_t TotalSteps;          // total number of steps in the pattern
@@ -38,11 +39,15 @@ class pixPatterns {
     uint8_t Size1, Size, Fade, Pos; // size, fading & position for static looks
     uint8_t Intensity;
     bool NewData;
-
-    uint8_t Port;                 // port number.
-    serialLEDDriver* pixDriver;      // the pixel driver
-
-    pixPatterns(uint8_t port, serialLEDDriver* p);
+    
+    // uint8_t Port;                 // port number.
+    // ws2812Driver* pixDriver;      // the pixel driver
+    NeoPixelBus<NeoGrbFeature, NeoEsp32Rmt0Ws2812xMethod>* pixBus0;
+    NeoPixelBus<NeoGrbFeature, NeoEsp32Rmt1Ws2812xMethod>* pixBus1;
+    
+    // pixPatterns(uint8_t port, ws2812Driver* p);
+    pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp32Rmt0Ws2812xMethod>* pixBusPtr);
+    pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp32Rmt1Ws2812xMethod>* pixBusPtr);
     bool Update(void);
     void Increment(void);
     void setSpeed(uint8_t s);
@@ -63,7 +68,7 @@ class pixPatterns {
     uint8_t Red(uint32_t colour);
     uint8_t Green(uint32_t colour);
     uint8_t Blue(uint32_t colour);
-    uint32_t Wheel(uint8_t WheelPos);
+    uint32_t Wheel(byte WheelPos);
 };
 
 #endif  // #ifndef wsFX_h
