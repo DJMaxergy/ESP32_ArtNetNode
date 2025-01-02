@@ -60,17 +60,10 @@
 #define ADDR_STATUS_LED_A           1
 #define ADDR_STATUS_LED_B           2
 
-//
-// Unchangable pins in ESP32:
-//
-// GPIO1  -> U0TXD -> DMX uart port A pin
-// GPIO09 -> U1TXD -> DMX uart port B pin
-// Direction pins for DMX can be anything, set below
-//
 #define DMX_DIR_A       23    // equals D1mini D7
 #define DMX_DIR_B       26    // equals D1mini D0
 #define PIN_PORT_A      1     // equals D1mini TX
-#define PIN_PORT_B      9     // equals D1mini D4
+#define PIN_PORT_B      16    // equals D1mini D4
 
 //#define NO_RESET            // Un comment to disable the reset button
 #ifndef NO_RESET
