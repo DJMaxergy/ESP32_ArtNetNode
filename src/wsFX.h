@@ -1,5 +1,5 @@
 /*
-ESP8266_ArtNetNode v2.0.0
+ESP8266_ArtNetNode v2.1.0
 Copyright (c) 2016, Matthew Tong
 https://github.com/mtongnz/ESP8266_ArtNetNode_v2
 
@@ -14,10 +14,13 @@ If not, see http://www.gnu.org/licenses/
 */
 
 
-#ifndef WS_FX
-#define WS_FX
+#ifndef wsFX_h
+#define wsFX_h
 
-#include "ws2812Driver.h"
+#include <Arduino.h>
+
+// #include "ws2812Driver.h"
+#include <NeoPixelBus.h>
 
 enum  pattern { STATIC, RAINBOW_CYCLE, THEATER_CHASE, TWINKLE };
 
@@ -37,10 +40,18 @@ class pixPatterns {
     uint8_t Intensity;
     bool NewData;
     
-    uint8_t Port;                 // port number.
-    ws2812Driver* pixDriver;      // the pixel driver
+    // uint8_t Port;                 // port number.
+    // ws2812Driver* pixDriver;      // the pixel driver
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart0Ws2812xMethod>* pixBus0;
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod>* pixBus1;
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart0Ws2812xMethod>* pixBusAsync0;
+    NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1Ws2812xMethod>* pixBusAsync1;
     
-    pixPatterns(uint8_t port, ws2812Driver* p);
+    // pixPatterns(uint8_t port, ws2812Driver* p);
+    pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart0Ws2812xMethod>* pixBusPtr);
+    pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1Ws2812xMethod>* pixBusPtr);
+    pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart0Ws2812xMethod>* pixBusPtr);
+    pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod>* pixBusPtr);
     bool Update(void);
     void Increment(void);
     void setSpeed(uint8_t s);

@@ -1,5 +1,5 @@
 /*
-ESP8266_ArtNetNode v2.0.0
+ESP8266_ArtNetNode v2.1.0
 Copyright (c) 2016, Matthew Tong
 https://github.com/mtongnz/ESP8266_ArtNetNode_v2
 
@@ -16,9 +16,56 @@ If not, see http://www.gnu.org/licenses/
 
 #include "wsFX.h"
 
-pixPatterns::pixPatterns(uint8_t port, ws2812Driver* p) {
+/* pixPatterns::pixPatterns(uint8_t port, ws2812Driver* p) {
   pixDriver = p;
   Port = port;
+  NewData = 0;
+  lastUpdate = 0;
+  Intensity = 0;
+  Speed = 0;
+  TotalSteps = 100;
+} */
+pixPatterns::pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart0Ws2812xMethod>* pixBusPtr) {
+  pixBus0 = nullptr;
+  pixBus1 = nullptr;
+  pixBusAsync0 = pixBusPtr;
+  pixBusAsync1 = nullptr;
+  NewData = 0;
+  lastUpdate = 0;
+  Intensity = 0;
+  Speed = 0;
+  TotalSteps = 100;
+}
+
+pixPatterns::pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266AsyncUart1Ws2812xMethod>* pixBusPtr) {
+  pixBus0 = nullptr;
+  pixBus1 = nullptr;
+  pixBusAsync0 = nullptr;
+  pixBusAsync1 = pixBusPtr;
+  NewData = 0;
+  lastUpdate = 0;
+  Intensity = 0;
+  Speed = 0;
+  TotalSteps = 100;
+}
+
+pixPatterns::pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart0Ws2812xMethod>* pixBusPtr) {
+  pixBus0 = pixBusPtr;
+  pixBus1 = nullptr;
+  pixBusAsync0 = nullptr;
+  pixBusAsync1 = nullptr;
+  NewData = 0;
+  lastUpdate = 0;
+  Intensity = 0;
+  Speed = 0;
+  TotalSteps = 100;
+}
+
+pixPatterns::pixPatterns(NeoPixelBus<NeoGrbFeature, NeoEsp8266Uart1Ws2812xMethod>* pixBusPtr) {
+  pixBus0 = nullptr;
+  pixBus1 = pixBusPtr;
+  pixBusAsync0 = nullptr;
+  pixBusAsync1 = nullptr;
   NewData = 0;
   lastUpdate = 0;
   Intensity = 0;
@@ -132,7 +179,16 @@ void pixPatterns::Static(void) {
 
 // Update the static look
 void pixPatterns::StaticUpdate(void) {
-  TotalSteps = pixDriver->numPixels(Port);
+  // TotalSteps = pixDriver->numPixels(Port);
+  if (pixBus0 != nullptr) {
+    TotalSteps = pixBus0->PixelCount();
+  } else if (pixBus1 != nullptr) {
+    TotalSteps = pixBus1->PixelCount();
+  } else if (pixBusAsync0 != nullptr) {
+    TotalSteps = pixBusAsync0->PixelCount();
+  } else if (pixBusAsync1 != nullptr) {
+    TotalSteps = pixBusAsync1->PixelCount();
+  }
 
   // Calculate the values to use mapped to the number of pixels we have
   uint16_t mSize = map(Size, 0, 255, 2, TotalSteps);           // Overall size
@@ -207,7 +263,16 @@ void pixPatterns::StaticUpdate(void) {
     else
       c = Colour2;
     
-    pixDriver->setPixel(Port, p, c);
+    // pixDriver->setPixel(Port, p, c);
+    if (pixBus0 != nullptr) {
+      pixBus0->SetPixelColor(p, RgbColor(Red(c), Green(c), Blue(c)));
+    } else if (pixBus1 != nullptr) {
+      pixBus1->SetPixelColor(p, RgbColor(Red(c), Green(c), Blue(c)));
+    } else if (pixBusAsync0 != nullptr) {
+      pixBusAsync0->SetPixelColor(p, RgbColor(Red(c), Green(c), Blue(c)));
+    } else if (pixBusAsync1 != nullptr) {
+      pixBusAsync1->SetPixelColor(p, RgbColor(Red(c), Green(c), Blue(c)));
+    }
   }
   Increment();
 }
@@ -224,17 +289,36 @@ void pixPatterns::RainbowCycle(void) {
 // Update the Rainbow Cycle Pattern
 void pixPatterns::RainbowCycleUpdate(void) {
   TotalSteps = 255;
+  uint16_t numPixels = 0;
+  if (pixBus0 != nullptr) {
+    numPixels = pixBus0->PixelCount();
+  } else if (pixBus1 != nullptr) {
+    numPixels = pixBus1->PixelCount();
+  } else if (pixBusAsync0 != nullptr) {
+    numPixels = pixBusAsync0->PixelCount();
+  } else if (pixBusAsync1 != nullptr) {
+    numPixels = pixBusAsync1->PixelCount();
+  }
   
-  uint16_t mSize = map(Size, 0, 255, 2, pixDriver->numPixels(Port));
+  uint16_t mSize = map(Size, 0, 255, 2, numPixels);
   
-  for(uint16_t p = 0; p < pixDriver->numPixels(Port);) {
-    for (uint16_t i = 0; i < mSize && p < pixDriver->numPixels(Port); i++, p++) {
+  for(uint16_t p = 0; p < numPixels;) {
+    for (uint16_t i = 0; i < mSize && p < numPixels; i++, p++) {
       uint32_t c = Wheel(((i * 256 / mSize) + Index + Pos) & 255);
       uint8_t r = map(Red(c), 0, 255, 0, Intensity);
       uint8_t g = map(Green(c), 0, 255, 0, Intensity);
       uint8_t b = map(Blue(c), 0, 255, 0, Intensity);
       
-      pixDriver->setPixel(Port, p, Colour(r, g, b));
+      // pixDriver->setPixel(Port, p, Colour(r, g, b));
+      if (pixBus0 != nullptr) {
+        pixBus0->SetPixelColor(p, RgbColor(r, g, b));
+      } else if (pixBus1 != nullptr) {
+        pixBus1->SetPixelColor(p, RgbColor(r, g, b));
+      } else if (pixBusAsync0 != nullptr) {
+        pixBusAsync0->SetPixelColor(p, RgbColor(r, g, b));
+      } else if (pixBusAsync1 != nullptr) {
+        pixBusAsync1->SetPixelColor(p, RgbColor(r, g, b));
+      }
     }
   }
   Increment();
@@ -251,16 +335,46 @@ void pixPatterns::TheaterChase(void) {
 
 // Update the Theater Chase Pattern
 void pixPatterns::TheaterChaseUpdate(void) {
-  TotalSteps = pixDriver->numPixels(Port);
+  uint16_t numPixels = 0;
+  if (pixBus0 != nullptr) {
+    numPixels = pixBus0->PixelCount();
+  } else if (pixBus1 != nullptr) {
+    numPixels = pixBus1->PixelCount();
+  } else if (pixBusAsync0 != nullptr) {
+    numPixels = pixBusAsync0->PixelCount();
+  } else if (pixBusAsync1 != nullptr) {
+    numPixels = pixBusAsync1->PixelCount();
+  }
+  TotalSteps = numPixels;
   
   uint8_t mSize = map(Size, 0, 255, 3, 50);
   uint8_t a = (Index / map(mSize, 3, 50, 8, 2)) + map(Pos, 0, 255, mSize, 0);
   
-  for(int i = 0; i < pixDriver->numPixels(Port); i++) {
-    if ((i + a) % mSize == 0)
-      pixDriver->setPixel(Port, i, Colour1);
-    else
-      pixDriver->setPixel(Port, i, Colour2);
+  for(int i = 0; i < numPixels; i++) {
+    if ((i + a) % mSize == 0) {
+      // pixDriver->setPixel(Port, i, Colour1);
+      if (pixBus0 != nullptr) {
+        pixBus0->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      } else if (pixBus1 != nullptr) {
+        pixBus1->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      } else if (pixBusAsync0 != nullptr) {
+        pixBusAsync0->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      } else if (pixBusAsync1 != nullptr) {
+        pixBusAsync1->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      }
+    }
+    else {
+      // pixDriver->setPixel(Port, i, Colour2);
+      if (pixBus0 != nullptr) {
+        pixBus0->SetPixelColor(i, RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      } else if (pixBus1 != nullptr) {
+        pixBus1->SetPixelColor(i, RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      } else if (pixBusAsync0 != nullptr) {
+        pixBusAsync0->SetPixelColor(i, RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      } else if (pixBusAsync1 != nullptr) {
+        pixBusAsync1->SetPixelColor(i, RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      }
+    }
   }
   Increment();
 }
@@ -279,18 +393,48 @@ void pixPatterns::Twinkle(void) {
 // Update the Twinkle Pattern
 void pixPatterns::TwinkleUpdate(void) {
   TotalSteps = 3;
+  uint16_t numPixels = 0;
+  if (pixBus0 != nullptr) {
+    numPixels = pixBus0->PixelCount();
+  } else if (pixBus1 != nullptr) {
+    numPixels = pixBus1->PixelCount();
+  } else if (pixBusAsync0 != nullptr) {
+    numPixels = pixBusAsync0->PixelCount();
+  } else if (pixBusAsync1 != nullptr) {
+    numPixels = pixBusAsync1->PixelCount();
+  }
   
   // Clear strip
   if (Index % 3 == 0 || Speed < 20 || Speed > 235) {
-    for (uint16_t i = 0; i < pixDriver->numPixels(Port); i++)
-      pixDriver->setPixel(Port, i, Colour1);
+    for (uint16_t i = 0; i < numPixels; i++) {
+      // pixDriver->setPixel(Port, i, Colour1);
+      if (pixBus0 != nullptr) {
+        pixBus0->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      } else if (pixBus1 != nullptr) {
+        pixBus1->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      } else if (pixBusAsync0 != nullptr) {
+        pixBusAsync0->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      } else if (pixBusAsync1 != nullptr) {
+        pixBusAsync1->SetPixelColor(i, RgbColor(Red(Colour1), Green(Colour1), Blue(Colour1)));
+      }
+    }
   }
 
   // Make twinkles
   if (Index % 3 == 0 && Speed > 20 && Speed < 235) {
-    uint16_t numTwinks = map(Size, 0, 255, 1, (pixDriver->numPixels(Port) / 10));
-    for (uint8_t n = 0; n < numTwinks; n++)
-      pixDriver->setPixel(Port, random(0, pixDriver->numPixels(Port)), Colour2);
+    uint16_t numTwinks = map(Size, 0, 255, 1, (numPixels / 10));
+    for (uint8_t n = 0; n < numTwinks; n++) {
+      // pixDriver->setPixel(Port, random(0, numPixels), Colour2);
+      if (pixBus0 != nullptr) {
+        pixBus0->SetPixelColor(random(0, numPixels), RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      } else if (pixBus1 != nullptr) {
+        pixBus1->SetPixelColor(random(0, numPixels), RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      } else if (pixBusAsync0 != nullptr) {
+        pixBusAsync0->SetPixelColor(random(0, numPixels), RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      } else if (pixBusAsync1 != nullptr) {
+        pixBusAsync1->SetPixelColor(random(0, numPixels), RgbColor(Red(Colour2), Green(Colour2), Blue(Colour2)));
+      }
+    }
   }
   
   Increment();

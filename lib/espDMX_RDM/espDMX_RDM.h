@@ -123,43 +123,43 @@ struct dmx_ {
 typedef struct dmx_ dmx_t;
 
 class espDMX {
-    public:
-        espDMX(uint8_t dmx_nr);
-        ~espDMX();
+  public:
+    espDMX(uint8_t dmx_nr);
+    ~espDMX();
 
   	void begin(uint8_t dir, byte* buf);
-	void begin(uint8_t dir) {
-      		begin(dir, NULL);
+	  void begin(uint8_t dir) {
+      begin(dir, NULL);
   	};
-	void begin(byte* buf) {
-      		begin(255, buf);
+	  void begin(byte* buf) {
+      begin(255, buf);
   	};
-	void begin(void) {
-      		begin(255, NULL);
+	  void begin(void) {
+      begin(255, NULL);
   	};
 
-	void setBuffer(byte*);
-	void setBuffer(void) {
-		setBuffer(NULL);
-	};
-        void pause();
-        void unPause();
-        void end();
-        void ledIntensity(uint8_t);
-        
-        void setChans(byte *data) {
-            setChans(data, 512, 1);
-        }
-        void setChans(byte *data, uint16_t numChans) {
-            setChans(data, numChans, 1);
-        }
-        void setChans(byte*, uint16_t, uint16_t);
+	  void setBuffer(byte*);
+	  void setBuffer(void) {
+		  setBuffer(NULL);
+	  };
+    void pause();
+    void unPause();
+    void end();
+    void ledIntensity(uint8_t);
+    
+    void setChans(byte *data) {
+        setChans(data, 512, 1);
+    }
+    void setChans(byte *data, uint16_t numChans) {
+        setChans(data, numChans, 1);
+    }
+    void setChans(byte*, uint16_t, uint16_t);
 
 
-  	void chanUpdate(uint16_t);
-        void clearChans();
-        byte *getChans();
-        uint16_t numChans();
+    void chanUpdate(uint16_t);
+    void clearChans();
+    byte *getChans();
+    uint16_t numChans();
         
 /*  from stream class
         int available(void) override;
@@ -170,68 +170,68 @@ class espDMX {
         operator bool() const;
 */
 
-        void rdmEnable(uint16_t, uint32_t);
-        void rdmDisable(void);
-        void rdmDiscovery(uint8_t);
-        void rdmDiscovery() {
-          rdmDiscovery(RDM_DISCOVERY_TOD_WIPE);
-        };
-        
-        void rdmSetCallBack(void (*rdmCallBackFunc)(rdm_data*));
-        void todSetCallBack(void (*todCallBackFunc)(void));
-        
-        bool rdmSendCommand(rdm_data*);
-        bool rdmSendCommand(uint8_t, uint16_t, uint16_t, uint32_t, byte*, uint16_t, uint16_t);
-        bool rdmSendCommand(uint8_t cmdClass, uint16_t pid, uint16_t manID, uint32_t devID, byte* data, uint16_t dataLength) {
-          return rdmSendCommand(cmdClass, pid, manID, devID, data, dataLength, 0);
-        };
-        bool rdmSendCommand(uint8_t cmdClass, uint16_t pid, uint16_t manID, uint32_t devID) {
-          return rdmSendCommand(cmdClass, pid, manID, devID, NULL, 0, 0);
-        };
+    void rdmEnable(uint16_t, uint32_t);
+    void rdmDisable(void);
+    void rdmDiscovery(uint8_t);
+    void rdmDiscovery() {
+      rdmDiscovery(RDM_DISCOVERY_TOD_WIPE);
+    };
+    
+    void rdmSetCallBack(void (*rdmCallBackFunc)(rdm_data*));
+    void todSetCallBack(void (*todCallBackFunc)(void));
+    
+    bool rdmSendCommand(rdm_data*);
+    bool rdmSendCommand(uint8_t, uint16_t, uint16_t, uint32_t, byte*, uint16_t, uint16_t);
+    bool rdmSendCommand(uint8_t cmdClass, uint16_t pid, uint16_t manID, uint32_t devID, byte* data, uint16_t dataLength) {
+      return rdmSendCommand(cmdClass, pid, manID, devID, data, dataLength, 0);
+    };
+    bool rdmSendCommand(uint8_t cmdClass, uint16_t pid, uint16_t manID, uint32_t devID) {
+      return rdmSendCommand(cmdClass, pid, manID, devID, NULL, 0, 0);
+    };
 
-  bool rdmEnabled(void);
-        uint8_t todStatus(void);
-        uint16_t todCount(void);
+    bool rdmEnabled(void);
+    uint8_t todStatus(void);
+    uint16_t todCount(void);
 
-        uint16_t* todMan(void);
-        uint32_t* todDev(void);
-        uint16_t todMan(uint16_t n);
-        uint32_t todDev(uint16_t n);
+    uint16_t* todMan(void);
+    uint32_t* todDev(void);
+    uint16_t todMan(uint16_t n);
+    uint32_t todDev(uint16_t n);
 
-        void handler(void);
+    void handler(void);
 
-        void dmxIn(bool doIn);
+    void dmxIn(bool doIn);
 
-        void setInputCallback(void (*inputCallBackFunc)(uint16_t));
+    void setInputCallback(void (*inputCallBackFunc)(uint16_t));
         
-    private:
-        friend void dmx_interrupt_handler(void);
-        friend void rdm_timer_handler(void);
-        friend void rdm_interrupt_disarm(dmx_t* dmx);
-        friend void rdmPause(bool);
-        
-        void _transmit(void);
-	void fillTX(void);
-        
-        void inputBreak(void);
-        void dmxReceived(uint8_t);
+  private:
+    friend void dmx_interrupt_handler(void);
+    friend void rdm_timer_handler(void);
+    friend void rdm_interrupt_disarm(dmx_t* dmx);
+    friend void rdmPause(bool);
+    
+    void _transmit(void);
+    void fillTX(void);
+    
+    void inputBreak(void);
+    void dmxReceived(uint8_t);
 
-        void rdmRXTimeout(void);
-        void rdmBreakDetect(void);
-        
-        void rdmReceived(void);
-        void rdmMuteResponse(rdm_data*);
-        void rdmDiscoveryResponse(rdm_data*);
-        
-        bool rdmDiscConfirm();
-        
-        bool rdmDiscoverBranch(uint16_t, uint32_t, uint16_t, uint32_t, bool);
-        bool rdmDiscoverBranch(void) {
-          return rdmDiscoverBranch(0x0000, 0x00000000, 0xFFFF, 0xFFFFFFFF, false);
-        };
+    void rdmRXTimeout(void);
+    void rdmBreakDetect(void);
+    
+    void rdmReceived(void);
+    void rdmMuteResponse(rdm_data*);
+    void rdmDiscoveryResponse(rdm_data*);
+    
+    bool rdmDiscConfirm();
+    
+    bool rdmDiscoverBranch(uint16_t, uint32_t, uint16_t, uint32_t, bool);
+    bool rdmDiscoverBranch(void) {
+      return rdmDiscoverBranch(0x0000, 0x00000000, 0xFFFF, 0xFFFFFFFF, false);
+    };
 
-        uint8_t _dmx_nr;
-        dmx_t* _dmx;
+    uint8_t _dmx_nr;
+    dmx_t* _dmx;
 };
 
 

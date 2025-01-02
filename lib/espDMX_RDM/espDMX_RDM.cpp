@@ -48,7 +48,7 @@ static uint8_t rxUser;
 static unsigned long rdmTimer = 0;
 
 
-void ICACHE_RAM_ATTR dmx_interrupt_handler(void) {
+void IRAM_ATTR dmx_interrupt_handler(void) {
   // stop other interrupts for TX
   noInterrupts();
   
@@ -386,7 +386,7 @@ void espDMX::begin(uint8_t dir, byte* buf) {
     _dmx->ownBuffer = 0;
 
     system_set_os_print(0);
-    ets_install_putc1((void *) &uart_ignore_char);
+    ets_install_putc1(&uart_ignore_char);
     
     // Initialize variables
     _dmx->dmx_nr = _dmx_nr;
@@ -916,14 +916,14 @@ void espDMX::rdmDisable() {
 
 uint8_t espDMX::todStatus() {
   if (_dmx == 0 || !_dmx->rdm_enable)
-    return false;
+    return 0U;
   
   return _dmx->tod_status;
 }
 
 uint16_t espDMX::todCount() {
   if (_dmx == 0 || !_dmx->rdm_enable)
-    return false;
+    return 0U;
   
   return _dmx->tod_size;
 }
@@ -945,14 +945,14 @@ uint32_t* espDMX::todDev() {
 
 uint16_t espDMX::todMan(uint16_t n) {
   if (_dmx == 0 || !_dmx->rdm_enable)
-    return NULL;
+    return 0U;
 
   return _dmx->todManID[n];
 }
 
 uint32_t espDMX::todDev(uint16_t n) {
   if (_dmx == 0 || !_dmx->rdm_enable)
-    return NULL;
+    return 0U;
 
   return _dmx->todDevID[n];
 }
@@ -1107,7 +1107,6 @@ void ICACHE_RAM_ATTR espDMX::inputBreak(void) {
   _dmx->state = DMX_RX_BREAK;
 
   // Double buffer switch
-  byte* tmp = _dmx->data;
   _dmx->data = _dmx->data1;
   _dmx->data1 = _dmx->data;
 
@@ -1165,8 +1164,8 @@ void espDMX::handler() {
       //  return;
 
       // DMX Transmit
-      if (millis() >= _dmx->full_uni_time)
-        _dmx->txSize = 512;
+      if (millis() >= ((ulong)_dmx->full_uni_time))
+        _dmx->txSize = 512U;
       else
         _dmx->txSize = _dmx->numChans;
 
