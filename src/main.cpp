@@ -813,8 +813,8 @@ void initWebServer() {
   yield();
 
   // Add OTA Update requests:
-  ESPUI.server->on("/update", HTTP_GET, [](AsyncWebServerRequest *request){handleUpdate(request);});
-  ESPUI.server->on("/doUpdate", HTTP_POST,
+  ESPUI.WebServer()->on("/update", HTTP_GET, [](AsyncWebServerRequest *request){handleUpdate(request);});
+  ESPUI.WebServer()->on("/doUpdate", HTTP_POST,
     [](AsyncWebServerRequest *request) {},
     [](AsyncWebServerRequest *request, const String& filename, size_t index, uint8_t *data,
                   size_t len, bool final) {handleDoUpdate(request, filename, index, data, len, final);}
@@ -1630,9 +1630,9 @@ void loop(void){
       pauseDmxOutputHandler(false);
     }
     // When someone is connected to webserver, pause DMX output (disarm UART interrupts) for better webserver performance:
-    if (ESPUI.ws->count() > 0) {
+    if (ESPUI.WebSocket()->count() > 0) {
       pauseDmxOutputHandler(true);
-    } else if (ESPUI.ws->count() == 0) {
+    } else if (ESPUI.WebSocket()->count() == 0) {
       pauseDmxOutputHandler(false);
     }
 
@@ -1646,7 +1646,7 @@ void loop(void){
       }
     #endif
 
-    if (ESPUI.ws->count() == 0) {
+    if (ESPUI.WebSocket()->count() == 0) {
       // Do Pixel FX on port A
       if (configActive.portA_mode == PORT_TYPE_WS2812 && configActive.portA_pixel_mode != PIXEL_FX_MODE_MAP && pixFXA != NULL) {
         if (pixFXA->Update())
@@ -1725,10 +1725,10 @@ void loop(void){
         }
       }
     // Set main status LED according connection state
-    } else if (((accessPointStarted == true) && (WiFi.softAPgetStationNum() > 0) && (ESPUI.ws->count() == 0)) ||
-               ((accessPointStarted == false) && (WiFi.status() == WL_CONNECTED) && (ESPUI.ws->count() == 0))) {
+    } else if (((accessPointStarted == true) && (WiFi.softAPgetStationNum() > 0) && (ESPUI.WebSocket()->count() == 0)) ||
+               ((accessPointStarted == false) && (WiFi.status() == WL_CONNECTED) && (ESPUI.WebSocket()->count() == 0))) {
       statusStrip.SetPixelColor(ADDR_STATUS_LED_S, green);
-    } else if (ESPUI.ws->count() > 0) {
+    } else if (ESPUI.WebSocket()->count() > 0) {
       statusStrip.SetPixelColor(ADDR_STATUS_LED_S, blue);
     } else {
       statusStrip.SetPixelColor(ADDR_STATUS_LED_S, white);
